@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -12,31 +13,39 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const year = new Date().getFullYear();
+
   return (
     <html lang="en">
       <body className="bg-black text-white antialiased">
         <header className="border-b border-zinc-800 bg-black/90">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-            <a
+            <Link
               href="/"
               className="text-lg font-black uppercase tracking-[0.25em] text-cyan-400"
             >
               Breaking Mad
-            </a>
+            </Link>
 
             <nav className="flex gap-6 text-sm font-semibold uppercase tracking-[0.15em] text-zinc-300">
-              <a href="/about" className="hover:text-cyan-400">
+              <Link href="/about" className="hover:text-cyan-400">
                 About
-              </a>
-              <a href="/work" className="hover:text-cyan-400">
+              </Link>
+              <Link href="/work" className="hover:text-cyan-400">
                 Work
-              </a>
-              <a href="/journal" className="hover:text-cyan-400">
+              </Link>
+              <Link href="/journal" className="hover:text-cyan-400">
                 Journal
-              </a>
-              <a href="/contact" className="hover:text-cyan-400">
+              </Link>
+              <Link href="/contact" className="hover:text-cyan-400">
                 Contact
-              </a>
+              </Link>
+              <Link
+                href="/studio"
+                className="rounded-full border border-cyan-400/50 px-3 py-1 text-cyan-400 transition hover:border-cyan-400 hover:bg-cyan-400/10"
+              >
+                Studio
+              </Link>
             </nav>
           </div>
         </header>
@@ -45,7 +54,7 @@ export default function RootLayout({
 
         <footer className="border-t border-zinc-800">
           <div className="mx-auto max-w-6xl px-6 py-6 text-sm text-zinc-500">
-            © {new Date().getFullYear()} Breaking Mad · Jodick (Joe) Perry Etheridge
+            Copyright {year} Breaking Mad - Jodick (Joe) Perry Etheridge
           </div>
         </footer>
       </body>

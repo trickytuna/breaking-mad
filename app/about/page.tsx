@@ -22,7 +22,7 @@ export default function AboutPage() {
         </p>
 
         <p>
-          His work has included the Peregrine Fund’s aplomado falcon restoration
+          His work has included the Peregrine Fund&apos;s aplomado falcon restoration
           project, the Texas Commission on Environmental Quality, and ConocoPhillips.
           In 2010, he founded Encino Environmental Services and holds four patents
           related to emissions measurement and abatement.

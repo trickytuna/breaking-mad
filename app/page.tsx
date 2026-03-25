@@ -1,6 +1,16 @@
 import Image from "next/image";
+import Link from "next/link";
+import { formatPostDate, getPublishedPostsBySection } from "@/lib/site-content";
 
-export default function Home() {
+export default async function Home() {
+  const [{ posts: journalPosts }, { posts: workPosts }] = await Promise.all([
+    getPublishedPostsBySection("journal"),
+    getPublishedPostsBySection("work"),
+  ]);
+
+  const latestJournalPosts = journalPosts.slice(0, 2);
+  const latestWorkPosts = workPosts.slice(0, 2);
+
   return (
     <main className="min-h-screen bg-black text-white">
       <section className="relative overflow-hidden border-b border-zinc-800">
@@ -38,24 +48,24 @@ export default function Home() {
 
             <p className="mt-8 max-w-3xl text-lg leading-8 text-zinc-300 md:text-xl">
               Musings, essays, memory, music, field notes, and long-form work
-              from Jodick (Joe) Perry Etheridge — a Texas writer, environmental
+              from Jodick (Joe) Perry Etheridge, a Texas writer, environmental
               scientist, inventor, and observer of systems.
             </p>
 
             <div className="mt-10 flex flex-wrap gap-4">
-              <a
+              <Link
                 href="/about"
                 className="rounded-xl border border-cyan-400 bg-cyan-400 px-6 py-3 font-bold text-black transition hover:opacity-90"
               >
                 About Joe
-              </a>
+              </Link>
 
-              <a
+              <Link
                 href="/work"
                 className="rounded-xl border border-zinc-700 bg-black/40 px-6 py-3 font-bold text-white transition hover:border-cyan-400"
               >
                 View Work
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -71,7 +81,7 @@ export default function Home() {
               </div>
               <div className="p-6">
                 <p className="text-xs uppercase tracking-[0.25em] text-cyan-400">
-                  Writer · Scientist · Inventor
+                  Writer / Scientist / Inventor
                 </p>
                 <p className="mt-3 text-zinc-300">
                   Signal from the carbon age. Stories, systems, and songs from a
@@ -85,25 +95,116 @@ export default function Home() {
 
       <section className="mx-auto max-w-6xl px-6 py-20">
         <div className="grid gap-6 md:grid-cols-3">
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+          <Link
+            href="/journal"
+            className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 transition hover:border-cyan-400"
+          >
             <h2 className="text-xl font-bold uppercase">Journal</h2>
             <p className="mt-3 text-zinc-400">
               Musings, chats, experiences, and thoughts in motion.
             </p>
-          </div>
+          </Link>
 
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+          <Link
+            href="/work"
+            className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 transition hover:border-cyan-400"
+          >
             <h2 className="text-xl font-bold uppercase">Work</h2>
             <p className="mt-3 text-zinc-400">
               Essays, projects, book development, and selected writing.
             </p>
-          </div>
+          </Link>
 
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
             <h2 className="text-xl font-bold uppercase">Media</h2>
             <p className="mt-3 text-zinc-400">
               Breaking Mad on YouTube, music, conversations, and recorded pieces.
             </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-zinc-900 bg-zinc-950/60">
+        <div className="mx-auto max-w-6xl px-6 py-20">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-cyan-400">
+                Latest Signal
+              </p>
+              <h2 className="mt-4 text-4xl font-black uppercase">
+                Fresh Writing from the Studio
+              </h2>
+            </div>
+          </div>
+
+          <div className="mt-10 grid gap-8 lg:grid-cols-2">
+            <section>
+              <div className="mb-5 flex items-center justify-between gap-4">
+                <h3 className="text-2xl font-bold uppercase">Latest Journal</h3>
+                <Link
+                  href="/journal"
+                  className="text-sm font-bold uppercase tracking-[0.15em] text-cyan-400"
+                >
+                  View All
+                </Link>
+              </div>
+
+              <div className="grid gap-4">
+                {latestJournalPosts.map((post) => (
+                  <article
+                    key={post.id}
+                    className="rounded-2xl border border-zinc-800 bg-black/70 p-5"
+                  >
+                    <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
+                      {formatPostDate(post.published_at)}
+                    </p>
+                    <h4 className="mt-3 text-2xl font-bold uppercase">
+                      <Link
+                        href={`/journal/${post.slug}`}
+                        className="transition hover:text-cyan-400"
+                      >
+                        {post.title}
+                      </Link>
+                    </h4>
+                    <p className="mt-3 text-zinc-400">{post.excerpt}</p>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <div className="mb-5 flex items-center justify-between gap-4">
+                <h3 className="text-2xl font-bold uppercase">Recent Work</h3>
+                <Link
+                  href="/work"
+                  className="text-sm font-bold uppercase tracking-[0.15em] text-cyan-400"
+                >
+                  View All
+                </Link>
+              </div>
+
+              <div className="grid gap-4">
+                {latestWorkPosts.map((post) => (
+                  <article
+                    key={post.id}
+                    className="rounded-2xl border border-zinc-800 bg-black/70 p-5"
+                  >
+                    <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
+                      {formatPostDate(post.published_at)}
+                    </p>
+                    <h4 className="mt-3 text-2xl font-bold uppercase">
+                      <Link
+                        href={`/work/${post.slug}`}
+                        className="transition hover:text-cyan-400"
+                      >
+                        {post.title}
+                      </Link>
+                    </h4>
+                    <p className="mt-3 text-zinc-400">{post.excerpt}</p>
+                  </article>
+                ))}
+              </div>
+            </section>
           </div>
         </div>
       </section>
