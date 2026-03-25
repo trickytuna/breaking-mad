@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { AnalyticsTracker } from "@/components/analytics-tracker";
 import { SiteVisitCounter } from "@/components/site-visit-counter";
 import "./globals.css";
@@ -20,7 +21,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-black text-white antialiased">
-        <AnalyticsTracker />
+        <Suspense fallback={null}>
+          <AnalyticsTracker />
+        </Suspense>
         <header className="border-b border-zinc-800 bg-black/90">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
             <Link
