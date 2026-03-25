@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SiteVisitCounter } from "@/components/site-visit-counter";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -53,8 +54,9 @@ export default function RootLayout({
         {children}
 
         <footer className="border-t border-zinc-800">
-          <div className="mx-auto max-w-6xl px-6 py-6 text-sm text-zinc-500">
-            Copyright {year} Breaking Mad - Jodick (Joe) Perry Etheridge
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-6 text-sm text-zinc-500">
+            <div>Copyright {year} Breaking Mad - Jodick (Joe) Perry Etheridge</div>
+            <SiteVisitCounter />
           </div>
         </footer>
       </body>

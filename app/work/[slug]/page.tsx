@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MarkdownContent } from "@/components/markdown-content";
+import { WorkReactionBar } from "@/components/work-reaction-bar";
 import {
   formatPostDate,
   getPublishedPostBySlug,
@@ -70,6 +71,8 @@ export default async function WorkDetailPage({
           </div>
         </section>
       ) : null}
+
+      <WorkReactionBar postId={post.id} />
     </main>
   );
 }
