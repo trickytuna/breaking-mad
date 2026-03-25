@@ -22,7 +22,7 @@ export default function RootLayout({
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
             <Link
               href="/"
-              className="text-lg font-black uppercase tracking-[0.25em] text-cyan-400"
+              className="text-xl font-black uppercase tracking-[0.25em] text-cyan-400 md:text-2xl"
             >
               Breaking Mad
             </Link>

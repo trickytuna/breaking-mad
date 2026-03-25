@@ -31,9 +31,9 @@ export default async function Home() {
               <Image
                 src="/images/logo.png"
                 alt="Breaking Mad logo"
-                width={110}
-                height={110}
-                className="h-auto w-auto"
+                width={170}
+                height={170}
+                className="h-auto w-32 md:w-40"
                 priority
               />
             </div>
@@ -83,7 +83,7 @@ export default async function Home() {
                 <p className="text-xs uppercase tracking-[0.25em] text-cyan-400">
                   Writer / Scientist / Inventor
                 </p>
-                <p className="mt-3 text-zinc-300">
+                <p className="mt-3 text-zinc-400">
                   Signal from the carbon age. Stories, systems, and songs from a
                   life spent measuring what most people never see.
                 </p>
@@ -100,7 +100,7 @@ export default async function Home() {
             className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 transition hover:border-cyan-400"
           >
             <h2 className="text-xl font-bold uppercase">Journal</h2>
-            <p className="mt-3 text-zinc-400">
+            <p className="mt-3 text-zinc-500">
               Musings, chats, experiences, and thoughts in motion.
             </p>
           </Link>
@@ -110,14 +110,14 @@ export default async function Home() {
             className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 transition hover:border-cyan-400"
           >
             <h2 className="text-xl font-bold uppercase">Work</h2>
-            <p className="mt-3 text-zinc-400">
+            <p className="mt-3 text-zinc-500">
               Essays, projects, book development, and selected writing.
             </p>
           </Link>
 
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
             <h2 className="text-xl font-bold uppercase">Media</h2>
-            <p className="mt-3 text-zinc-400">
+            <p className="mt-3 text-zinc-500">
               Breaking Mad on YouTube, music, conversations, and recorded pieces.
             </p>
           </div>
@@ -166,7 +166,7 @@ export default async function Home() {
                         {post.title}
                       </Link>
                     </h4>
-                    <p className="mt-3 text-zinc-400">{post.excerpt}</p>
+                    <p className="mt-3 text-zinc-500">{post.excerpt}</p>
                   </article>
                 ))}
               </div>
@@ -200,7 +200,7 @@ export default async function Home() {
                         {post.title}
                       </Link>
                     </h4>
-                    <p className="mt-3 text-zinc-400">{post.excerpt}</p>
+                    <p className="mt-3 text-zinc-500">{post.excerpt}</p>
                   </article>
                 ))}
               </div>

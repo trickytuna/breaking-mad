@@ -29,7 +29,7 @@ export default async function WorkPage() {
                   {post.title}
                 </Link>
               </h2>
-              <p className="mt-3 text-zinc-400">{post.excerpt}</p>
+              <p className="mt-3 text-zinc-500">{post.excerpt}</p>
               <Link
                 href={`/work/${post.slug}`}
                 className="mt-5 inline-block text-sm font-bold uppercase tracking-[0.15em] text-cyan-400"
@@ -39,7 +39,7 @@ export default async function WorkPage() {
             </article>
           ))
         ) : (
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 text-zinc-400">
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 text-zinc-500">
             No published work pages yet.
           </div>
         )}
