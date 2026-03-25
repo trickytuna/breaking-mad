@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useDeferredValue, useMemo, useState } from "react";
 import { StudioPostEditor } from "@/app/studio/studio-post-editor";
+import { type SiteVisitState } from "@/lib/site-engagement-shared";
 import {
   formatPostDate,
   type ContentSection,
@@ -28,8 +29,10 @@ function buildLiveHref(post: SitePost) {
 
 export function StudioDashboard({
   posts,
+  siteVisits,
 }: {
   posts: SitePost[];
+  siteVisits: SiteVisitState;
 }) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [sectionFilter, setSectionFilter] = useState<SectionFilter>("all");
@@ -91,7 +94,7 @@ export function StudioDashboard({
 
   return (
     <div className="mt-10 grid gap-8">
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
           <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Drafts</p>
           <p className="mt-3 text-4xl font-black uppercase">{stats.drafts}</p>
@@ -113,6 +116,17 @@ export function StudioDashboard({
             Launch Materials
           </p>
           <p className="mt-3 text-4xl font-black uppercase">{stats.documents}</p>
+        </div>
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
+            Site Visits
+          </p>
+          <p className="mt-3 text-4xl font-black uppercase">
+            {siteVisits.enabled ? siteVisits.count.toLocaleString("en-US") : "N/A"}
+          </p>
+          <p className="mt-2 text-xs uppercase tracking-[0.18em] text-zinc-500">
+            {siteVisits.enabled ? "Live count" : "Run latest SQL setup"}
+          </p>
         </div>
       </section>
 

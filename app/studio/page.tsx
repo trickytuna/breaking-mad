@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { signOutAction } from "@/app/studio/actions";
 import { SetupSqlPanel } from "@/app/studio/setup-sql-panel";
 import { StudioDashboard } from "@/app/studio/studio-dashboard";
+import { getSiteVisitCount } from "@/lib/site-engagement";
 import { getStudioAccessState } from "@/lib/studio-auth";
 import { getStudioPosts } from "@/lib/site-content";
 
@@ -132,6 +133,7 @@ export default async function StudioPage({
   }
 
   const { posts, schemaReady } = await getStudioPosts();
+  const siteVisits = await getSiteVisitCount();
   const setupSql = schemaReady ? "" : await getSetupSql();
 
   return (
@@ -216,7 +218,7 @@ export default async function StudioPage({
           ) : null}
         </section>
       ) : (
-        <StudioDashboard posts={posts} />
+        <StudioDashboard posts={posts} siteVisits={siteVisits} />
       )}
     </main>
   );
