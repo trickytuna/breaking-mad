@@ -113,6 +113,13 @@ execute function public.set_site_post_reactions_updated_at();
 alter table public.site_metrics enable row level security;
 alter table public.site_post_reactions enable row level security;
 
+drop policy if exists "Authenticated users can read reactions" on public.site_post_reactions;
+create policy "Authenticated users can read reactions"
+on public.site_post_reactions
+for select
+to authenticated
+using (true);
+
 create or replace function public.get_site_visits()
 returns bigint
 language sql
@@ -223,6 +230,62 @@ grant execute on function public.get_site_visits() to anon, authenticated;
 grant execute on function public.increment_site_visits() to anon, authenticated;
 grant execute on function public.get_work_reaction_summary(uuid, uuid) to anon, authenticated;
 grant execute on function public.set_work_reaction(uuid, uuid, text) to anon, authenticated;
+grant select on public.site_post_reactions to authenticated;
+
+create table if not exists public.site_analytics_events (
+  id uuid primary key default gen_random_uuid(),
+  event_type text not null check (event_type in ('page_view', 'launch_document_click')),
+  pathname text not null default '/',
+  content_section text check (content_section in ('journal', 'work')),
+  content_slug text not null default '',
+  target_label text not null default '',
+  target_url text not null default '',
+  referrer_host text not null default '',
+  utm_source text not null default '',
+  utm_medium text not null default '',
+  utm_campaign text not null default '',
+  country text not null default '',
+  region text not null default '',
+  city text not null default '',
+  timezone text not null default '',
+  browser_name text not null default '',
+  os_name text not null default '',
+  device_type text not null default '',
+  visitor_id uuid not null,
+  session_id uuid not null,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists site_analytics_events_created_at_idx
+  on public.site_analytics_events (created_at desc);
+
+create index if not exists site_analytics_events_event_type_idx
+  on public.site_analytics_events (event_type, created_at desc);
+
+create index if not exists site_analytics_events_pathname_idx
+  on public.site_analytics_events (pathname);
+
+create index if not exists site_analytics_events_content_idx
+  on public.site_analytics_events (content_section, content_slug);
+
+alter table public.site_analytics_events enable row level security;
+
+drop policy if exists "Authenticated users can read analytics events" on public.site_analytics_events;
+create policy "Authenticated users can read analytics events"
+on public.site_analytics_events
+for select
+to authenticated
+using (true);
+
+drop policy if exists "Visitors can create analytics events" on public.site_analytics_events;
+create policy "Visitors can create analytics events"
+on public.site_analytics_events
+for insert
+to anon, authenticated
+with check (event_type in ('page_view', 'launch_document_click'));
+
+grant insert on public.site_analytics_events to anon, authenticated;
+grant select on public.site_analytics_events to authenticated;
 
 create table if not exists public.photo_assets (
   id uuid primary key default gen_random_uuid(),

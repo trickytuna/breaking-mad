@@ -31,9 +31,9 @@ export default async function Home() {
               <Image
                 src="/images/logo.png"
                 alt="Breaking Mad logo"
-                width={170}
-                height={170}
-                className="h-auto w-32 md:w-40"
+                width={255}
+                height={255}
+                className="h-auto w-48 md:w-60"
                 priority
               />
             </div>

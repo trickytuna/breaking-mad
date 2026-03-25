@@ -5,6 +5,7 @@ import { signOutAction } from "@/app/studio/actions";
 import { SetupSqlPanel } from "@/app/studio/setup-sql-panel";
 import { StudioDashboard } from "@/app/studio/studio-dashboard";
 import { getStudioPhotos } from "@/lib/photo-gallery";
+import { getStudioAnalytics } from "@/lib/site-analytics";
 import { getSiteVisitCount } from "@/lib/site-engagement";
 import { getStudioAccessState } from "@/lib/studio-auth";
 import { getStudioPosts } from "@/lib/site-content";
@@ -133,8 +134,17 @@ export default async function StudioPage({
     );
   }
 
-  const [{ posts, schemaReady }, { photos, schemaReady: photoSchemaReady }, siteVisits] =
-    await Promise.all([getStudioPosts(), getStudioPhotos(), getSiteVisitCount()]);
+  const [
+    { posts, schemaReady },
+    { photos, schemaReady: photoSchemaReady },
+    siteVisits,
+    analytics,
+  ] = await Promise.all([
+    getStudioPosts(),
+    getStudioPhotos(),
+    getSiteVisitCount(),
+    getStudioAnalytics(),
+  ]);
   const setupSql = schemaReady ? "" : await getSetupSql();
 
   return (
@@ -224,6 +234,7 @@ export default async function StudioPage({
           photos={photos}
           photoSchemaReady={photoSchemaReady}
           siteVisits={siteVisits}
+          analytics={analytics}
         />
       )}
     </main>

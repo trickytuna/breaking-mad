@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MarkdownContent } from "@/components/markdown-content";
+import { TrackedDocumentLink } from "@/components/tracked-document-link";
 import { WorkReactionBar } from "@/components/work-reaction-bar";
 import {
   formatPostDate,
@@ -50,12 +51,12 @@ export default async function WorkDetailPage({
           </h2>
           <div className="mt-8 grid gap-4 md:grid-cols-2">
             {post.documents.map((document) => (
-              <a
+              <TrackedDocumentLink
                 key={`${document.title}-${document.url}`}
                 href={document.url}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-2xl border border-zinc-800 bg-black/70 p-5 transition hover:border-cyan-400"
+                label={document.title}
+                pathname={`/work/${post.slug}`}
+                contentSlug={post.slug}
               >
                 <p className="text-xl font-bold uppercase text-white">
                   {document.title}
@@ -66,7 +67,7 @@ export default async function WorkDetailPage({
                 <p className="mt-5 text-sm font-bold uppercase tracking-[0.15em] text-cyan-400">
                   {document.cta_label}
                 </p>
-              </a>
+              </TrackedDocumentLink>
             ))}
           </div>
         </section>

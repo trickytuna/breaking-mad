@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useDeferredValue, useMemo, useState } from "react";
+import { StudioAnalyticsPanel } from "@/app/studio/studio-analytics-panel";
 import { StudioPostEditor } from "@/app/studio/studio-post-editor";
 import { StudioPhotoManager } from "@/app/studio/studio-photo-manager";
+import { type StudioAnalytics } from "@/lib/site-analytics-shared";
 import { type PhotoAsset } from "@/lib/photo-gallery-shared";
 import { type SiteVisitState } from "@/lib/site-engagement-shared";
 import {
@@ -34,11 +36,13 @@ export function StudioDashboard({
   photos,
   photoSchemaReady,
   siteVisits,
+  analytics,
 }: {
   posts: SitePost[];
   photos: PhotoAsset[];
   photoSchemaReady: boolean;
   siteVisits: SiteVisitState;
+  analytics: StudioAnalytics;
 }) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [sectionFilter, setSectionFilter] = useState<SectionFilter>("all");
@@ -185,6 +189,12 @@ export function StudioDashboard({
             >
               View Photos
             </Link>
+            <a
+              href="#studio-analytics"
+              className="rounded-lg border border-zinc-700 px-4 py-3 font-bold text-white transition hover:border-cyan-400"
+            >
+              View Analytics
+            </a>
           </div>
         </div>
       </section>
@@ -334,6 +344,10 @@ export function StudioDashboard({
       </section>
 
       <StudioPhotoManager photos={photos} schemaReady={photoSchemaReady} />
+
+      <div id="studio-analytics">
+        <StudioAnalyticsPanel analytics={analytics} />
+      </div>
     </div>
   );
 }
