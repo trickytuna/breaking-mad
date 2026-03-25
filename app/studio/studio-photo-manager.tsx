@@ -116,6 +116,7 @@ export function StudioPhotoManager({
   async function handleUpload(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setNotice(null);
+    const form = event.currentTarget;
 
     if (!schemaReady) {
       setNotice({
@@ -126,7 +127,7 @@ export function StudioPhotoManager({
       return;
     }
 
-    const formData = new FormData(event.currentTarget);
+    const formData = new FormData(form);
     const status = parsePhotoStatus(formData.get("photoStatus"));
     const files = formData
       .getAll("files")
@@ -191,7 +192,7 @@ export function StudioPhotoManager({
         uploadedCount += 1;
       }
 
-      event.currentTarget.reset();
+      form.reset();
       setNotice({
         tone: "success",
         message: `Uploaded ${uploadedCount} photo${uploadedCount === 1 ? "" : "s"} to the studio library.`,
