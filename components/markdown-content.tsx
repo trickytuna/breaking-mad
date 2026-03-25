@@ -3,22 +3,22 @@ import remarkGfm from "remark-gfm";
 
 export function MarkdownContent({ content }: { content: string }) {
   return (
-    <div className="space-y-6 text-lg leading-8 text-zinc-300">
+    <div className="space-y-6 text-lg leading-8 text-zinc-700">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
           h1: ({ children }) => (
-            <h1 className="text-4xl font-black uppercase leading-tight text-white">
+            <h1 className="text-4xl font-black uppercase leading-tight text-zinc-950">
               {children}
             </h1>
           ),
           h2: ({ children }) => (
-            <h2 className="pt-4 text-3xl font-black uppercase leading-tight text-white">
+            <h2 className="pt-4 text-3xl font-black uppercase leading-tight text-zinc-950">
               {children}
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="pt-2 text-2xl font-bold uppercase leading-tight text-white">
+            <h3 className="pt-2 text-2xl font-bold uppercase leading-tight text-zinc-900">
               {children}
             </h3>
           ),
@@ -31,7 +31,7 @@ export function MarkdownContent({ content }: { content: string }) {
           ),
           li: ({ children }) => <li>{children}</li>,
           blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-cyan-400 pl-4 italic text-zinc-200">
+            <blockquote className="border-l-4 border-cyan-400 pl-4 italic text-zinc-700">
               {children}
             </blockquote>
           ),
@@ -46,11 +46,11 @@ export function MarkdownContent({ content }: { content: string }) {
             </a>
           ),
           code: ({ children }) => (
-            <code className="rounded bg-zinc-900 px-1.5 py-0.5 text-sm text-cyan-200">
+            <code className="rounded bg-zinc-200 px-1.5 py-0.5 text-sm text-cyan-900">
               {children}
             </code>
           ),
-          hr: () => <hr className="border-zinc-800" />,
+          hr: () => <hr className="border-zinc-300" />,
         }}
       >
         {content}

@@ -19,7 +19,7 @@ export default async function WorkDetailPage({
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-20 text-white">
+    <main className="mx-auto max-w-4xl px-6 py-20 text-zinc-900">
       <Link
         href="/work"
         className="text-sm font-bold uppercase tracking-[0.2em] text-cyan-400"
@@ -27,13 +27,13 @@ export default async function WorkDetailPage({
         Back to Work
       </Link>
 
-      <p className="mt-8 text-sm uppercase tracking-[0.2em] text-zinc-500">
+      <p className="mt-8 text-sm uppercase tracking-[0.2em] text-zinc-600">
         {formatPostDate(post.published_at)}
       </p>
-      <h1 className="mt-3 text-5xl font-black uppercase leading-tight">
+      <h1 className="mt-3 text-5xl font-black uppercase leading-tight text-zinc-950">
         {post.title}
       </h1>
-      <p className="mt-6 text-xl leading-8 text-zinc-300">{post.excerpt}</p>
+      <p className="mt-6 text-xl leading-8 text-zinc-700">{post.excerpt}</p>
 
       <div className="mt-10">
         <MarkdownContent content={post.body} />
@@ -60,7 +60,7 @@ export default async function WorkDetailPage({
                   {document.title}
                 </p>
                 {document.description ? (
-                  <p className="mt-3 text-zinc-400">{document.description}</p>
+                  <p className="mt-3 text-zinc-300">{document.description}</p>
                 ) : null}
                 <p className="mt-5 text-sm font-bold uppercase tracking-[0.15em] text-cyan-400">
                   {document.cta_label}
