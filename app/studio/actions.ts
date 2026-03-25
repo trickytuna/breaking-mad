@@ -48,7 +48,11 @@ export async function savePostAction(formData: FormData) {
   const access = await requireStudioAccess();
 
   if (!access.ok) {
-    redirect(access.reason === "unauthenticated" ? "/login" : "/studio?status=denied");
+    if (access.reason === "unauthenticated") {
+      redirect("/login");
+    }
+
+    redirect(access.reason === "setup" ? "/studio?status=config" : "/studio?status=denied");
   }
 
   const title = readString(formData, "title");
@@ -113,7 +117,11 @@ export async function deletePostAction(formData: FormData) {
   const access = await requireStudioAccess();
 
   if (!access.ok) {
-    redirect(access.reason === "unauthenticated" ? "/login" : "/studio?status=denied");
+    if (access.reason === "unauthenticated") {
+      redirect("/login");
+    }
+
+    redirect(access.reason === "setup" ? "/studio?status=config" : "/studio?status=denied");
   }
 
   const id = readString(formData, "id");
@@ -147,6 +155,10 @@ export async function deletePostAction(formData: FormData) {
 
 export async function signOutAction() {
   const access = await getStudioAccessState();
-  await access.supabase.auth.signOut();
+
+  if (access.supabase) {
+    await access.supabase.auth.signOut();
+  }
+
   redirect("/login");
 }

@@ -1,5 +1,6 @@
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { type NextRequest, NextResponse } from "next/server";
+import { getSupabaseEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
@@ -16,6 +17,11 @@ export async function GET(request: NextRequest) {
   redirectTo.searchParams.delete("token_hash");
   redirectTo.searchParams.delete("type");
   redirectTo.searchParams.delete("next");
+
+  if (!getSupabaseEnv().isConfigured) {
+    redirectTo.pathname = "/login";
+    return NextResponse.redirect(redirectTo);
+  }
 
   const supabase = await createClient();
 

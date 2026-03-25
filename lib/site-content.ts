@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getSupabaseEnv } from "@/lib/supabase/env";
 import {
   normalizeDocumentList,
   type ContentSection,
@@ -155,6 +156,13 @@ function normalizePosts(data: Partial<SitePost>[] | null): SitePost[] {
 async function fetchPublishedPosts(
   section: ContentSection
 ): Promise<PostQueryResult> {
+  if (!getSupabaseEnv().isConfigured) {
+    return {
+      posts: FALLBACK_CONTENT[section],
+      schemaReady: false,
+    };
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("site_posts")
@@ -197,6 +205,13 @@ export async function getPublishedPostBySlug(
 }
 
 export async function getStudioPosts() {
+  if (!getSupabaseEnv().isConfigured) {
+    return {
+      posts: [] as SitePost[],
+      schemaReady: false,
+    };
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("site_posts")

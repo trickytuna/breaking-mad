@@ -24,6 +24,8 @@ function getStatusMessage(status?: string) {
       return "Please complete each document title and URL before saving.";
     case "setup":
       return "The content database still needs to be set up in Supabase.";
+    case "config":
+      return "Supabase environment variables still need to be configured for this deployment.";
     case "denied":
       return "This account is signed in, but it is not allowed to use the studio.";
     case "error":
@@ -51,16 +53,52 @@ export default async function StudioPage({
 }) {
   const access = await getStudioAccessState();
 
-  if (!access.isAuthenticated) {
-    redirect("/login");
-  }
-
   const resolvedSearchParams = await searchParams;
   const status =
     typeof resolvedSearchParams.status === "string"
       ? resolvedSearchParams.status
       : undefined;
   const message = getStatusMessage(status);
+
+  if (!access.isConfigured) {
+    return (
+      <main className="mx-auto max-w-4xl px-6 py-20 text-white">
+        <p className="mb-4 text-sm uppercase tracking-[0.3em] text-cyan-400">
+          Studio
+        </p>
+        <h1 className="text-5xl font-black uppercase">Connection Required</h1>
+        <section className="mt-8 rounded-3xl border border-amber-400/40 bg-amber-400/10 p-6 text-amber-100">
+          <p className="text-sm uppercase tracking-[0.3em] text-amber-200">
+            Studio Status
+          </p>
+          <h2 className="mt-3 text-2xl font-black uppercase">
+            Supabase Environment Missing
+          </h2>
+          <p className="mt-3 text-sm">
+            This deployment is live, but studio authentication has not been
+            connected to Supabase yet. Add the public Supabase environment
+            variables in Vercel, redeploy, then return here to finish database
+            setup if prompted.
+          </p>
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl border border-amber-300/20 bg-black/20 p-4 text-sm">
+              1. In Vercel, add `NEXT_PUBLIC_SUPABASE_URL`.
+            </div>
+            <div className="rounded-2xl border border-amber-300/20 bg-black/20 p-4 text-sm">
+              2. Add `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+            </div>
+            <div className="rounded-2xl border border-amber-300/20 bg-black/20 p-4 text-sm">
+              3. Redeploy and reopen `/studio`.
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (!access.isAuthenticated) {
+    redirect("/login");
+  }
 
   if (!access.isAllowed) {
     return (

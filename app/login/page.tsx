@@ -3,20 +3,31 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { getSupabaseEnv } from "@/lib/supabase/env";
 
 export default function LoginPage() {
-  const supabase = createClient();
   const router = useRouter();
+  const { isConfigured } = getSupabaseEnv();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isFormDisabled = isSubmitting || !isConfigured;
 
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
     setMessage("");
+
+    if (!isConfigured) {
+      setMessage(
+        "Studio login is not configured yet. Add the Supabase environment variables in Vercel, then redeploy."
+      );
+      return;
+    }
+
     setIsSubmitting(true);
+    const supabase = createClient();
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -41,7 +52,16 @@ export default function LoginPage() {
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     setMessage("");
+
+    if (!isConfigured) {
+      setMessage(
+        "Studio login is not configured yet. Add the Supabase environment variables in Vercel, then redeploy."
+      );
+      return;
+    }
+
     setIsSubmitting(true);
+    const supabase = createClient();
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -77,7 +97,7 @@ export default function LoginPage() {
           onChange={(e) => setEmail(e.target.value)}
           required
           autoComplete="email"
-          disabled={isSubmitting}
+          disabled={isFormDisabled}
           className="w-full rounded-lg border border-zinc-700 bg-black px-4 py-3 text-white"
         />
 
@@ -88,14 +108,14 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
           autoComplete="current-password"
-          disabled={isSubmitting}
+          disabled={isFormDisabled}
           className="w-full rounded-lg border border-zinc-700 bg-black px-4 py-3 text-white"
         />
 
         <div className="flex gap-3">
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isFormDisabled}
             className="rounded-lg bg-cyan-400 px-4 py-3 font-bold text-black"
           >
             {isSubmitting ? "Working..." : "Sign In"}
@@ -104,12 +124,19 @@ export default function LoginPage() {
           <button
             onClick={handleSignUp}
             type="button"
-            disabled={isSubmitting}
+            disabled={isFormDisabled}
             className="rounded-lg border border-zinc-700 px-4 py-3 font-bold text-white"
           >
             Create Account
           </button>
         </div>
+
+        {!isConfigured ? (
+          <p className="text-sm text-amber-300">
+            Supabase login is not configured in this environment yet. Add the
+            public Supabase variables in Vercel to enable sign-in.
+          </p>
+        ) : null}
 
         {message ? <p className="text-sm text-zinc-300">{message}</p> : null}
       </form>
