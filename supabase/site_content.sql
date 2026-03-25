@@ -223,3 +223,97 @@ grant execute on function public.get_site_visits() to anon, authenticated;
 grant execute on function public.increment_site_visits() to anon, authenticated;
 grant execute on function public.get_work_reaction_summary(uuid, uuid) to anon, authenticated;
 grant execute on function public.set_work_reaction(uuid, uuid, text) to anon, authenticated;
+
+create table if not exists public.photo_assets (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  alt_text text not null default '',
+  description text not null default '',
+  file_path text not null unique,
+  status text not null default 'draft' check (status in ('draft', 'published')),
+  published_at timestamptz,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists photo_assets_status_published_idx
+  on public.photo_assets (status, published_at desc);
+
+create or replace function public.set_photo_assets_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = timezone('utc', now());
+  return new;
+end;
+$$;
+
+drop trigger if exists set_photo_assets_updated_at on public.photo_assets;
+create trigger set_photo_assets_updated_at
+before update on public.photo_assets
+for each row
+execute function public.set_photo_assets_updated_at();
+
+alter table public.photo_assets enable row level security;
+
+drop policy if exists "Public can read published photos" on public.photo_assets;
+create policy "Public can read published photos"
+on public.photo_assets
+for select
+to anon, authenticated
+using (status = 'published' or auth.role() = 'authenticated');
+
+drop policy if exists "Authenticated users can manage photos" on public.photo_assets;
+create policy "Authenticated users can manage photos"
+on public.photo_assets
+for all
+to authenticated
+using (true)
+with check (true);
+
+grant select on public.photo_assets to anon;
+grant all on public.photo_assets to authenticated;
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'site-photos',
+  'site-photos',
+  true,
+  20971520,
+  array['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']::text[]
+)
+on conflict (id) do update
+set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "Public can view site photos bucket" on storage.objects;
+create policy "Public can view site photos bucket"
+on storage.objects
+for select
+to public
+using (bucket_id = 'site-photos');
+
+drop policy if exists "Authenticated users can upload site photos" on storage.objects;
+create policy "Authenticated users can upload site photos"
+on storage.objects
+for insert
+to authenticated
+with check (bucket_id = 'site-photos');
+
+drop policy if exists "Authenticated users can update site photos" on storage.objects;
+create policy "Authenticated users can update site photos"
+on storage.objects
+for update
+to authenticated
+using (bucket_id = 'site-photos')
+with check (bucket_id = 'site-photos');
+
+drop policy if exists "Authenticated users can delete site photos" on storage.objects;
+create policy "Authenticated users can delete site photos"
+on storage.objects
+for delete
+to authenticated
+using (bucket_id = 'site-photos');

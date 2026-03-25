@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useDeferredValue, useMemo, useState } from "react";
 import { StudioPostEditor } from "@/app/studio/studio-post-editor";
+import { StudioPhotoManager } from "@/app/studio/studio-photo-manager";
+import { type PhotoAsset } from "@/lib/photo-gallery-shared";
 import { type SiteVisitState } from "@/lib/site-engagement-shared";
 import {
   formatPostDate,
@@ -29,9 +31,13 @@ function buildLiveHref(post: SitePost) {
 
 export function StudioDashboard({
   posts,
+  photos,
+  photoSchemaReady,
   siteVisits,
 }: {
   posts: SitePost[];
+  photos: PhotoAsset[];
+  photoSchemaReady: boolean;
   siteVisits: SiteVisitState;
 }) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -81,6 +87,7 @@ export function StudioDashboard({
       (post) => post.section === "journal" && post.status === "published"
     ).length,
     documents: posts.reduce((count, post) => count + post.documents.length, 0),
+    photos: photos.length,
   };
 
   const activeEditorLabel =
@@ -94,7 +101,7 @@ export function StudioDashboard({
 
   return (
     <div className="mt-10 grid gap-8">
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
           <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Drafts</p>
           <p className="mt-3 text-4xl font-black uppercase">{stats.drafts}</p>
@@ -116,6 +123,17 @@ export function StudioDashboard({
             Launch Materials
           </p>
           <p className="mt-3 text-4xl font-black uppercase">{stats.documents}</p>
+        </div>
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
+          <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
+            Photos
+          </p>
+          <p className="mt-3 text-4xl font-black uppercase">
+            {photoSchemaReady ? stats.photos : "N/A"}
+          </p>
+          <p className="mt-2 text-xs uppercase tracking-[0.18em] text-zinc-500">
+            {photoSchemaReady ? "Studio library" : "Run latest SQL setup"}
+          </p>
         </div>
         <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
           <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
@@ -141,8 +159,8 @@ export function StudioDashboard({
             </h2>
             <p className="mt-3 max-w-3xl text-zinc-400">
               Create a new work launch, draft a journal entry, or pick something
-              from the library to edit. Once published, your updates appear on the
-              public site automatically.
+              from the library to edit. Your photos live here too, so the whole
+              website can now be managed from one place.
             </p>
           </div>
 
@@ -161,6 +179,12 @@ export function StudioDashboard({
             >
               New Journal Entry
             </button>
+            <Link
+              href="/photos"
+              className="rounded-lg border border-zinc-700 px-4 py-3 font-bold text-white transition hover:border-cyan-400"
+            >
+              View Photos
+            </Link>
           </div>
         </div>
       </section>
@@ -308,6 +332,8 @@ export function StudioDashboard({
           />
         </div>
       </section>
+
+      <StudioPhotoManager photos={photos} schemaReady={photoSchemaReady} />
     </div>
   );
 }

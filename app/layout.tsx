@@ -28,7 +28,7 @@ export default function RootLayout({
               Breaking Mad
             </Link>
 
-            <nav className="flex gap-6 text-sm font-semibold uppercase tracking-[0.15em] text-zinc-300">
+            <nav className="flex flex-wrap items-center justify-end gap-4 text-sm font-semibold uppercase tracking-[0.15em] text-zinc-300 md:gap-6">
               <Link href="/about" className="hover:text-cyan-400">
                 About
               </Link>
@@ -37,6 +37,9 @@ export default function RootLayout({
               </Link>
               <Link href="/journal" className="hover:text-cyan-400">
                 Journal
+              </Link>
+              <Link href="/photos" className="hover:text-cyan-400">
+                Photos
               </Link>
               <Link href="/contact" className="hover:text-cyan-400">
                 Contact
