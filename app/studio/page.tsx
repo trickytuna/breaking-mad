@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { redirect } from "next/navigation";
 import { signOutAction } from "@/app/studio/actions";
+import { SetupSqlPanel } from "@/app/studio/setup-sql-panel";
 import { StudioDashboard } from "@/app/studio/studio-dashboard";
 import { getStudioAccessState } from "@/lib/studio-auth";
 import { getStudioPosts } from "@/lib/site-content";
@@ -211,17 +212,7 @@ export default async function StudioPage({
           </div>
 
           {setupSql ? (
-            <div className="mt-6">
-              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-amber-200">
-                Setup Script
-              </p>
-              <textarea
-                readOnly
-                value={setupSql}
-                rows={18}
-                className="w-full rounded-2xl border border-amber-300/20 bg-black/40 px-4 py-4 font-mono text-xs text-amber-50"
-              />
-            </div>
+            <SetupSqlPanel sql={setupSql} />
           ) : null}
         </section>
       ) : (
