@@ -1,6 +1,6 @@
 export default function AboutPage() {
   return (
-    <main className="mx-auto max-w-5xl px-6 py-20">
+    <main className="mx-auto max-w-5xl px-6 py-20 text-zinc-900">
       <p className="mb-4 text-sm uppercase tracking-[0.3em] text-cyan-400">
         About
       </p>
@@ -9,7 +9,7 @@ export default function AboutPage() {
         Jodick (Joe) Perry Etheridge
       </h1>
 
-      <div className="mt-10 space-y-6 text-lg leading-8 text-zinc-300">
+      <div className="mt-10 space-y-6 text-lg leading-8 text-zinc-700">
         <p>
           Jodick (Joe) Perry Etheridge is a Texas writer whose work lives at the
           intersection of science, industry, memory, inheritance, and consequence.
