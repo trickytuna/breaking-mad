@@ -18,7 +18,10 @@ const supabaseImagePattern = (() => {
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: supabaseImagePattern ? [supabaseImagePattern] : [],
+    remotePatterns: [
+      ...(supabaseImagePattern ? [supabaseImagePattern] : []),
+      new URL("https://i.ytimg.com/vi/**"),
+    ],
   },
 };
 

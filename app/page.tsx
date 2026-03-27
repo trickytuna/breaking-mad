@@ -1,11 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
+import { YouTubeShowcase } from "@/components/youtube-showcase";
 import { formatPostDate, getPublishedPostsBySection } from "@/lib/site-content";
+import { getYouTubeChannelFeed } from "@/lib/youtube";
 
 export default async function Home() {
-  const [{ posts: journalPosts }, { posts: workPosts }] = await Promise.all([
+  const [{ posts: journalPosts }, { posts: workPosts }, youtubeChannel] =
+    await Promise.all([
     getPublishedPostsBySection("journal"),
     getPublishedPostsBySection("work"),
+    getYouTubeChannelFeed(),
   ]);
 
   const latestJournalPosts = journalPosts.slice(0, 2);
@@ -115,14 +119,25 @@ export default async function Home() {
             </p>
           </Link>
 
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
-            <h2 className="text-xl font-bold uppercase">Media</h2>
-            <p className="mt-3 text-zinc-600">
-              Breaking Mad on YouTube, music, conversations, and recorded pieces.
+          <Link
+            href={youtubeChannel.channelUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-2xl border border-red-500/35 bg-[linear-gradient(160deg,rgba(24,24,27,0.96),rgba(9,9,11,1))] p-6 transition hover:border-red-500"
+          >
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-red-400">
+              YouTube
             </p>
-          </div>
+            <h2 className="mt-3 text-xl font-bold uppercase">Media</h2>
+            <p className="mt-3 text-zinc-500">
+              Breaking Mad on YouTube, music, conversations, and recorded
+              pieces.
+            </p>
+          </Link>
         </div>
       </section>
+
+      <YouTubeShowcase channel={youtubeChannel} />
 
       <section className="border-t border-zinc-900 bg-zinc-950/60">
         <div className="mx-auto max-w-6xl px-6 py-20">
