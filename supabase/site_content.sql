@@ -391,3 +391,162 @@ on storage.objects
 for delete
 to authenticated
 using (bucket_id = 'site-photos');
+
+create table if not exists public.site_subscribers (
+  id uuid primary key default gen_random_uuid(),
+  channel text not null check (channel in ('email', 'sms')),
+  contact_value text not null,
+  email text not null default '',
+  phone text not null default '',
+  status text not null default 'active' check (status in ('active', 'unsubscribed')),
+  unsubscribe_token uuid not null default gen_random_uuid(),
+  confirmed_at timestamptz not null default timezone('utc', now()),
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+create unique index if not exists site_subscribers_channel_contact_idx
+  on public.site_subscribers (channel, contact_value);
+
+create index if not exists site_subscribers_status_idx
+  on public.site_subscribers (status, channel, created_at desc);
+
+create table if not exists public.site_notification_deliveries (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid not null references public.site_posts(id) on delete cascade,
+  subscriber_id uuid not null references public.site_subscribers(id) on delete cascade,
+  channel text not null check (channel in ('email', 'sms')),
+  status text not null default 'sent' check (status in ('sent', 'failed')),
+  provider_message_id text not null default '',
+  error_message text not null default '',
+  created_at timestamptz not null default timezone('utc', now()),
+  unique (post_id, subscriber_id)
+);
+
+create index if not exists site_notification_deliveries_post_idx
+  on public.site_notification_deliveries (post_id, created_at desc);
+
+create or replace function public.set_site_subscribers_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = timezone('utc', now());
+  return new;
+end;
+$$;
+
+drop trigger if exists set_site_subscribers_updated_at on public.site_subscribers;
+create trigger set_site_subscribers_updated_at
+before update on public.site_subscribers
+for each row
+execute function public.set_site_subscribers_updated_at();
+
+alter table public.site_subscribers enable row level security;
+alter table public.site_notification_deliveries enable row level security;
+
+drop policy if exists "Authenticated users can read site subscribers" on public.site_subscribers;
+create policy "Authenticated users can read site subscribers"
+on public.site_subscribers
+for select
+to authenticated
+using (true);
+
+drop policy if exists "Authenticated users can read notification deliveries" on public.site_notification_deliveries;
+create policy "Authenticated users can read notification deliveries"
+on public.site_notification_deliveries
+for select
+to authenticated
+using (true);
+
+drop policy if exists "Authenticated users can insert notification deliveries" on public.site_notification_deliveries;
+create policy "Authenticated users can insert notification deliveries"
+on public.site_notification_deliveries
+for insert
+to authenticated
+with check (true);
+
+grant select on public.site_subscribers to authenticated;
+grant select, insert on public.site_notification_deliveries to authenticated;
+
+create or replace function public.register_site_subscriber(
+  target_channel text,
+  target_contact_value text,
+  target_email text default '',
+  target_phone text default ''
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  saved_id uuid;
+begin
+  if target_channel not in ('email', 'sms') then
+    raise exception 'Unsupported notification channel';
+  end if;
+
+  if btrim(target_contact_value) = '' then
+    raise exception 'Missing contact value';
+  end if;
+
+  insert into public.site_subscribers (
+    channel,
+    contact_value,
+    email,
+    phone,
+    status,
+    confirmed_at
+  )
+  values (
+    target_channel,
+    lower(btrim(target_contact_value)),
+    lower(btrim(target_email)),
+    btrim(target_phone),
+    'active',
+    timezone('utc', now())
+  )
+  on conflict (channel, contact_value)
+  do update
+    set email = case
+      when excluded.email <> '' then excluded.email
+      else public.site_subscribers.email
+    end,
+        phone = case
+      when excluded.phone <> '' then excluded.phone
+      else public.site_subscribers.phone
+    end,
+        status = 'active',
+        confirmed_at = timezone('utc', now()),
+        updated_at = timezone('utc', now())
+  returning id into saved_id;
+
+  return saved_id;
+end;
+$$;
+
+create or replace function public.unsubscribe_site_subscriber(target_token uuid)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  did_update boolean;
+begin
+  update public.site_subscribers
+  set status = 'unsubscribed',
+      updated_at = timezone('utc', now())
+  where unsubscribe_token = target_token
+  returning true into did_update;
+
+  return coalesce(did_update, false);
+end;
+$$;
+
+revoke all on function public.register_site_subscriber(text, text, text, text) from public;
+revoke all on function public.unsubscribe_site_subscriber(uuid) from public;
+
+grant execute on function public.register_site_subscriber(text, text, text, text) to anon, authenticated;
+grant execute on function public.unsubscribe_site_subscriber(uuid) to anon, authenticated;

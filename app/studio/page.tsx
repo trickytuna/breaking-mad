@@ -34,6 +34,12 @@ function getStatusMessage(status?: string) {
       return "This account is signed in, but it is not allowed to use the studio.";
     case "error":
       return "Something went wrong while saving. Please try again.";
+    case "published_notified":
+      return "Post published and notifications were sent to current subscribers.";
+    case "published_pending":
+      return "Post published. Subscriber signups are active, but email or text delivery still needs provider setup.";
+    case "published_issue":
+      return "Post published, but one or more notifications could not be delivered.";
     default:
       return null;
   }

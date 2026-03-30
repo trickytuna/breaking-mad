@@ -139,6 +139,7 @@ export function StudioPostEditor({
       <input type="hidden" name="id" value={post?.id ?? ""} />
       <input type="hidden" name="previousSlug" value={post?.slug ?? ""} />
       <input type="hidden" name="previousSection" value={post?.section ?? ""} />
+      <input type="hidden" name="previousStatus" value={post?.status ?? ""} />
       <input
         type="hidden"
         name="currentPublishedAt"

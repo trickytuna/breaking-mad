@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { sendPostNotifications } from "@/lib/notifications";
 import { getStudioAccessState, requireStudioAccess } from "@/lib/studio-auth";
 import {
   parseDocumentsJson,
@@ -63,11 +64,13 @@ export async function savePostAction(formData: FormData) {
   const id = readString(formData, "id");
   const previousSlug = readString(formData, "previousSlug");
   const previousSection = readString(formData, "previousSection");
+  const previousStatus = readString(formData, "previousStatus");
   const currentPublishedAt = readString(formData, "currentPublishedAt");
   const requestedSlug = readString(formData, "slug");
   const documentsJson = readString(formData, "documentsJson");
   const slug = slugify(requestedSlug || title);
   const documents = parseDocumentsJson(documentsJson);
+  const isFirstPublish = status === "published" && previousStatus !== "published";
 
   if (!title || !excerpt || !body || !slug) {
     redirectToStudio("invalid");
@@ -91,11 +94,18 @@ export async function savePostAction(formData: FormData) {
   };
 
   const response = id
-    ? await access.supabase.from("site_posts").update(payload).eq("id", id)
+    ? await access.supabase
+        .from("site_posts")
+        .update(payload)
+        .eq("id", id)
+        .select("id, title, slug, excerpt, section")
+        .single()
     : await access.supabase.from("site_posts").insert({
         ...payload,
         created_at: now,
-      });
+      })
+        .select("id, title, slug, excerpt, section")
+        .single();
 
   if (response.error?.code === "42P01" || response.error?.code === "PGRST205") {
     redirectToStudio("setup");
@@ -110,6 +120,27 @@ export async function savePostAction(formData: FormData) {
   }
 
   revalidateContentPaths(section, slug, previousSection, previousSlug);
+
+  if (isFirstPublish && response.data) {
+    const notificationResult = await sendPostNotifications(access.supabase, {
+      id: String(response.data.id),
+      title,
+      slug,
+      excerpt,
+      section,
+    });
+
+    if (notificationResult.status === "issue") {
+      redirectToStudio("published_issue");
+    }
+
+    if (notificationResult.status === "pending") {
+      redirectToStudio("published_pending");
+    }
+
+    redirectToStudio("published_notified");
+  }
+
   redirectToStudio(id ? "updated" : "created");
 }
 

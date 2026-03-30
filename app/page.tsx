@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { GetNotifiedSection } from "@/components/get-notified-section";
 import { PhotoCarousel } from "@/components/photo-carousel";
 import { YouTubeShowcase } from "@/components/youtube-showcase";
 import { getPublishedPhotos } from "@/lib/photo-gallery";
@@ -258,6 +259,8 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      <GetNotifiedSection />
     </main>
   );
 }
