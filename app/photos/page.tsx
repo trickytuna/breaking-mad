@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { PhotoCarousel } from "@/components/photo-carousel";
 import { getPublishedPhotos } from "@/lib/photo-gallery";
 
 export default async function PhotosPage() {
@@ -21,30 +22,55 @@ export default async function PhotosPage() {
         </p>
 
         {photos.length ? (
-          <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {photos.map((photo) => (
-              <article
-                key={photo.id}
-                className="overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950"
-              >
-                <div className="relative aspect-[4/3]">
-                  <Image
-                    src={photo.public_url}
-                    alt={photo.alt_text}
-                    fill
-                    sizes="(min-width: 1280px) 30vw, (min-width: 768px) 45vw, 100vw"
-                    className="object-cover"
-                  />
+          <>
+            <div className="mt-12">
+              <PhotoCarousel photos={photos} variant="gallery" />
+            </div>
+
+            <div className="mt-14">
+              <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <p className="text-sm uppercase tracking-[0.3em] text-cyan-400">
+                    Full Archive
+                  </p>
+                  <h2 className="mt-3 text-3xl font-black uppercase">
+                    Browse Every Published Image
+                  </h2>
                 </div>
-                <div className="p-6">
-                  <h2 className="text-2xl font-bold uppercase">{photo.title}</h2>
-                  {photo.description ? (
-                    <p className="mt-3 text-zinc-300">{photo.description}</p>
-                  ) : null}
+
+                <div className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-400">
+                  {photos.length} published photo{photos.length === 1 ? "" : "s"}
                 </div>
-              </article>
-            ))}
-          </div>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {photos.map((photo) => (
+                  <article
+                    key={photo.id}
+                    className="overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950"
+                  >
+                    <div className="relative aspect-[4/3]">
+                      <Image
+                        src={photo.public_url}
+                        alt={photo.alt_text}
+                        fill
+                        sizes="(min-width: 1280px) 30vw, (min-width: 768px) 45vw, 100vw"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="p-6">
+                      <h2 className="text-2xl font-bold uppercase">
+                        {photo.title}
+                      </h2>
+                      {photo.description ? (
+                        <p className="mt-3 text-zinc-300">{photo.description}</p>
+                      ) : null}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </>
         ) : (
           <div className="mt-12 rounded-3xl border border-zinc-800 bg-zinc-950 p-8">
             <h2 className="text-2xl font-bold uppercase">

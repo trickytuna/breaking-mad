@@ -1,19 +1,28 @@
 import Image from "next/image";
 import Link from "next/link";
+import { PhotoCarousel } from "@/components/photo-carousel";
 import { YouTubeShowcase } from "@/components/youtube-showcase";
+import { getPublishedPhotos } from "@/lib/photo-gallery";
 import { formatPostDate, getPublishedPostsBySection } from "@/lib/site-content";
 import { getYouTubeChannelFeed } from "@/lib/youtube";
 
 export default async function Home() {
-  const [{ posts: journalPosts }, { posts: workPosts }, youtubeChannel] =
+  const [
+    { posts: journalPosts },
+    { posts: workPosts },
+    youtubeChannel,
+    { photos: publishedPhotos },
+  ] =
     await Promise.all([
-    getPublishedPostsBySection("journal"),
-    getPublishedPostsBySection("work"),
-    getYouTubeChannelFeed(),
-  ]);
+      getPublishedPostsBySection("journal"),
+      getPublishedPostsBySection("work"),
+      getYouTubeChannelFeed(),
+      getPublishedPhotos(),
+    ]);
 
   const latestJournalPosts = journalPosts.slice(0, 2);
   const latestWorkPosts = workPosts.slice(0, 2);
+  const carouselPhotos = publishedPhotos.slice(0, 6);
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -138,6 +147,32 @@ export default async function Home() {
       </section>
 
       <YouTubeShowcase channel={youtubeChannel} />
+
+      {carouselPhotos.length ? (
+        <section className="border-t border-zinc-900 bg-zinc-950/60">
+          <div className="mx-auto max-w-6xl px-6 py-20">
+            <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-sm uppercase tracking-[0.3em] text-cyan-400">
+                  Visual Signal
+                </p>
+                <h2 className="mt-4 text-4xl font-black uppercase">
+                  A Carousel from the Photo Archive
+                </h2>
+              </div>
+
+              <Link
+                href="/photos"
+                className="text-sm font-bold uppercase tracking-[0.15em] text-cyan-400"
+              >
+                Browse All Photos
+              </Link>
+            </div>
+
+            <PhotoCarousel photos={carouselPhotos} variant="home" />
+          </div>
+        </section>
+      ) : null}
 
       <section className="border-t border-zinc-900 bg-zinc-950/60">
         <div className="mx-auto max-w-6xl px-6 py-20">
