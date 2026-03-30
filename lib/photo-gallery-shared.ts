@@ -10,6 +10,8 @@ export interface PhotoAsset {
   file_path: string;
   public_url: string;
   status: PhotoStatus;
+  featured: boolean;
+  featured_order: number | null;
   published_at: string | null;
   created_at: string;
   updated_at: string;

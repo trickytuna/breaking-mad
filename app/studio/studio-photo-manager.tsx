@@ -24,6 +24,12 @@ function parsePhotoStatus(value: FormDataEntryValue | null): PhotoStatus {
   return value === "published" ? "published" : "draft";
 }
 
+function parseFeaturedOrder(value: FormDataEntryValue | null) {
+  const parsed = Number(String(value ?? "").trim());
+
+  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : null;
+}
+
 function getFileExtension(file: File) {
   const fileNameExtension = file.name.split(".").pop()?.trim().toLowerCase();
 
@@ -96,9 +102,11 @@ function NoticeBanner({ notice }: { notice: Notice }) {
 export function StudioPhotoManager({
   photos,
   schemaReady,
+  curationReady,
 }: {
   photos: PhotoAsset[];
   schemaReady: boolean;
+  curationReady: boolean;
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -224,6 +232,10 @@ export function StudioPhotoManager({
       const altText = String(formData.get("altText") ?? "").trim();
       const description = String(formData.get("description") ?? "").trim();
       const status = parsePhotoStatus(formData.get("status"));
+      const featured = curationReady && formData.get("featured") === "on";
+      const featuredOrder = featured
+        ? parseFeaturedOrder(formData.get("featuredOrder"))
+        : null;
 
       if (!title) {
         setNotice({
@@ -241,6 +253,12 @@ export function StudioPhotoManager({
           alt_text: altText || title,
           description,
           status,
+          ...(curationReady
+            ? {
+                featured,
+                featured_order: featuredOrder,
+              }
+            : {}),
           updated_at: now,
           published_at:
             status === "published" ? photo.published_at ?? now : null,
@@ -312,6 +330,7 @@ export function StudioPhotoManager({
   }
 
   const publishedPhotos = photos.filter((photo) => photo.status === "published").length;
+  const featuredPhotos = photos.filter((photo) => photo.featured).length;
 
   return (
     <section className="rounded-3xl border border-zinc-800 bg-zinc-950 p-6">
@@ -334,6 +353,12 @@ export function StudioPhotoManager({
         </div>
       </div>
 
+      {schemaReady && curationReady ? (
+        <div className="mt-4 rounded-2xl border border-zinc-800 bg-black/50 px-4 py-3 text-sm text-zinc-400">
+          {featuredPhotos} featured in carousel / {publishedPhotos} published
+        </div>
+      ) : null}
+
       <div className="mt-6 flex flex-wrap gap-3">
         <Link
           href="/photos"
@@ -346,6 +371,19 @@ export function StudioPhotoManager({
       <div className="mt-6">
         <NoticeBanner notice={notice} />
       </div>
+
+      {schemaReady && !curationReady ? (
+        <div className="mt-6 rounded-2xl border border-amber-400/40 bg-amber-400/10 p-5 text-amber-100">
+          <h3 className="text-xl font-bold uppercase">
+            Featured Carousel Controls Need One More SQL Update
+          </h3>
+          <p className="mt-3 max-w-3xl text-sm">
+            Photo uploads and publishing are already working. Run the latest SQL
+            setup once more and this section will unlock featured-photo toggles
+            and display order controls for the homepage and `/photos` carousel.
+          </p>
+        </div>
+      ) : null}
 
       {!schemaReady ? (
         <div className="mt-6 rounded-2xl border border-amber-400/40 bg-amber-400/10 p-5 text-amber-100">
@@ -485,6 +523,43 @@ export function StudioPhotoManager({
                         Stored as <span className="text-zinc-200">{photo.file_path}</span>
                       </div>
                     </div>
+
+                    {curationReady ? (
+                      <div className="grid gap-4 md:grid-cols-[0.8fr_0.8fr_1.4fr]">
+                        <label className="flex items-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3">
+                          <input
+                            type="checkbox"
+                            name="featured"
+                            defaultChecked={photo.featured}
+                            className="h-4 w-4 accent-cyan-400"
+                          />
+                          <span className="text-sm font-semibold uppercase tracking-[0.15em] text-zinc-200">
+                            Featured
+                          </span>
+                        </label>
+
+                        <label className="block">
+                          <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.15em] text-zinc-400">
+                            Display Order
+                          </span>
+                          <input
+                            type="number"
+                            min="1"
+                            step="1"
+                            name="featuredOrder"
+                            defaultValue={photo.featured_order ?? ""}
+                            placeholder="Optional"
+                            className="w-full rounded-lg border border-zinc-700 bg-black px-4 py-3 text-white"
+                          />
+                        </label>
+
+                        <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-sm text-zinc-400">
+                          Featured photos appear first in the homepage and
+                          `/photos` carousel. Lower display order values show up
+                          earlier.
+                        </div>
+                      </div>
+                    ) : null}
 
                     <div className="flex flex-wrap gap-3">
                       <button

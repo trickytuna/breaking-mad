@@ -294,13 +294,24 @@ create table if not exists public.photo_assets (
   description text not null default '',
   file_path text not null unique,
   status text not null default 'draft' check (status in ('draft', 'published')),
+  featured boolean not null default false,
+  featured_order integer,
   published_at timestamptz,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
 
+alter table public.photo_assets
+  add column if not exists featured boolean not null default false;
+
+alter table public.photo_assets
+  add column if not exists featured_order integer;
+
 create index if not exists photo_assets_status_published_idx
   on public.photo_assets (status, published_at desc);
+
+create index if not exists photo_assets_featured_idx
+  on public.photo_assets (featured desc, featured_order asc, published_at desc);
 
 create or replace function public.set_photo_assets_updated_at()
 returns trigger

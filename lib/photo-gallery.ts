@@ -8,10 +8,12 @@ import {
 
 const PHOTO_SELECT =
   "id, title, alt_text, description, file_path, status, published_at, created_at, updated_at";
+const PHOTO_SELECT_WITH_CURATION = `${PHOTO_SELECT}, featured, featured_order`;
 
 interface PhotoQueryResult {
   photos: PhotoAsset[];
   schemaReady: boolean;
+  curationReady: boolean;
 }
 
 function isSetupError(error: { code?: string | null } | null) {
@@ -51,6 +53,9 @@ function normalizePhotos(data: Partial<PhotoAsset>[] | null): PhotoAsset[] {
       file_path: filePath,
       public_url: buildPublicPhotoUrl(filePath),
       status: photo.status === "published" ? "published" : "draft",
+      featured: photo.featured === true,
+      featured_order:
+        typeof photo.featured_order === "number" ? photo.featured_order : null,
       published_at: photo.published_at ? String(photo.published_at) : null,
       created_at: String(photo.created_at ?? new Date(0).toISOString()),
       updated_at: String(photo.updated_at ?? new Date(0).toISOString()),
@@ -63,37 +68,70 @@ async function fetchPhotos(includeDrafts: boolean): Promise<PhotoQueryResult> {
     return {
       photos: [],
       schemaReady: false,
+      curationReady: false,
     };
   }
 
   const supabase = await createClient();
-  let query = supabase
-    .from("photo_assets")
-    .select(PHOTO_SELECT)
-    .order("published_at", { ascending: false, nullsFirst: false })
-    .order("created_at", { ascending: false });
+  async function runQuery(selectClause: string, orderByFeatured: boolean) {
+    let query = supabase.from("photo_assets").select(selectClause);
 
-  if (!includeDrafts) {
-    query = query.eq("status", "published");
+    if (!includeDrafts) {
+      query = query.eq("status", "published");
+    }
+
+    if (orderByFeatured) {
+      query = query
+        .order("featured", { ascending: false })
+        .order("featured_order", { ascending: true, nullsFirst: false });
+    }
+
+    return query
+      .order("published_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false });
   }
 
-  const { data, error } = await query;
+  const curatedResult = await runQuery(PHOTO_SELECT_WITH_CURATION, true);
 
-  if (isSetupError(error)) {
+  if (!curatedResult.error) {
     return {
-      photos: [],
-      schemaReady: false,
+      photos: normalizePhotos(curatedResult.data as Partial<PhotoAsset>[] | null),
+      schemaReady: true,
+      curationReady: true,
     };
   }
 
-  if (error) {
-    throw new Error(error.message);
+  if (curatedResult.error.code === "42703") {
+    const fallbackResult = await runQuery(PHOTO_SELECT, false);
+
+    if (isSetupError(fallbackResult.error)) {
+      return {
+        photos: [],
+        schemaReady: false,
+        curationReady: false,
+      };
+    }
+
+    if (fallbackResult.error) {
+      throw new Error(fallbackResult.error.message);
+    }
+
+    return {
+      photos: normalizePhotos(fallbackResult.data as Partial<PhotoAsset>[] | null),
+      schemaReady: true,
+      curationReady: false,
+    };
   }
 
-  return {
-    photos: normalizePhotos(data),
-    schemaReady: true,
-  };
+  if (isSetupError(curatedResult.error)) {
+    return {
+      photos: [],
+      schemaReady: false,
+      curationReady: false,
+    };
+  }
+
+  throw new Error(curatedResult.error.message);
 }
 
 export async function getPublishedPhotos() {

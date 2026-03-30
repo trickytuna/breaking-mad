@@ -35,12 +35,14 @@ export function StudioDashboard({
   posts,
   photos,
   photoSchemaReady,
+  photoCurationReady,
   siteVisits,
   analytics,
 }: {
   posts: SitePost[];
   photos: PhotoAsset[];
   photoSchemaReady: boolean;
+  photoCurationReady: boolean;
   siteVisits: SiteVisitState;
   analytics: StudioAnalytics;
 }) {
@@ -343,7 +345,11 @@ export function StudioDashboard({
         </div>
       </section>
 
-      <StudioPhotoManager photos={photos} schemaReady={photoSchemaReady} />
+      <StudioPhotoManager
+        photos={photos}
+        schemaReady={photoSchemaReady}
+        curationReady={photoCurationReady}
+      />
 
       <div id="studio-analytics">
         <StudioAnalyticsPanel analytics={analytics} />

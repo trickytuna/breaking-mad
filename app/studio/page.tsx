@@ -136,7 +136,7 @@ export default async function StudioPage({
 
   const [
     { posts, schemaReady },
-    { photos, schemaReady: photoSchemaReady },
+    { photos, schemaReady: photoSchemaReady, curationReady: photoCurationReady },
     siteVisits,
     analytics,
   ] = await Promise.all([
@@ -233,6 +233,7 @@ export default async function StudioPage({
           posts={posts}
           photos={photos}
           photoSchemaReady={photoSchemaReady}
+          photoCurationReady={photoCurationReady}
           siteVisits={siteVisits}
           analytics={analytics}
         />
