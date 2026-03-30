@@ -237,7 +237,7 @@ export function PhotoCarousel({
                   isHomeVariant ? "text-4xl md:text-5xl" : "text-4xl"
                 }`}
               >
-                {activePhoto.title}
+                {isHomeVariant ? "Visual Notes in Motion" : "Curated Photo Sequence"}
               </h2>
               <p className="mt-5 text-lg leading-8 text-zinc-300">
                 {getDisplayDescription(activePhoto)}
@@ -329,7 +329,7 @@ export function PhotoCarousel({
                   Photo Lightbox
                 </p>
                 <h3 className="mt-2 text-2xl font-bold uppercase text-white">
-                  {activePhoto.title}
+                  Breaking Mad Gallery
                 </h3>
               </div>
 
